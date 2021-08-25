@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	key string
+	omdbAPIKey string
 }
 
 func GetConfig() Config {
@@ -17,9 +17,9 @@ func GetConfig() Config {
 		log.Fatal("Error loading .env file")
 	}
 
-	key := os.Getenv("KEY")
+	omdbAPIKey := os.Getenv("OMDB_API_KEY")
 
 	return Config{
-		key,
+		omdbAPIKey,
 	}
 }
