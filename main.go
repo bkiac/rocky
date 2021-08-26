@@ -2,18 +2,12 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/eefret/gomdb"
 )
 
 func main() {
-	cfg := GetConfig()
-	api := gomdb.Init(cfg.omdbAPIKey)
-	query := &gomdb.QueryData{Title: "There Will Be Blood", SearchType: gomdb.MovieSearch}
-	res, err := api.Search(query)
+	res, err := GetMovie("https://www.imdb.com/title/tt0469494/")
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
-	fmt.Println(res.Search)
+	fmt.Println(res)
 }
