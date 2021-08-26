@@ -1,13 +1,9 @@
 package main
 
-import (
-	"fmt"
-)
-
 func main() {
-	res, err := GetMovie("https://www.imdb.com/title/tt0469494/")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(res)
+	GetBook("https://www.goodreads.com/book/show/2175.Madame_Bovary")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(res)
 }
