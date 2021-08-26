@@ -4,19 +4,14 @@ package main
 <<<<<<< HEAD
 import (
 	"fmt"
-
-	"github.com/eefret/gomdb"
 )
 
 func main() {
-	cfg := GetConfig()
-	api := gomdb.Init(cfg.omdbAPIKey)
-	query := &gomdb.QueryData{Title: "There Will Be Blood", SearchType: gomdb.MovieSearch}
-	res, err := api.Search(query)
+	res, err := GetMovie("https://www.imdb.com/title/tt0469494/")
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
+<<<<<<< HEAD
 	fmt.Println(res.Search)
 =======
 func main() {
@@ -50,4 +45,7 @@ func main() {
 >>>>>>> 5e7b5f1 (Add return type to book getter)
 =======
 >>>>>>> 94b4151 (Add movie print)
+=======
+	fmt.Println(res)
+>>>>>>> a7a89b4 (Add movie getter by URL)
 }
