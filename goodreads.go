@@ -30,13 +30,12 @@ type PublicationDate struct {
 }
 
 type Book struct {
-	Title                string
-	Authors              []Author
-	Genres               []string
-	Description          Description
-	PublicationDate      PublicationDate
-	FirstPublicationDate string
-	CoverImage           string
+	Title           string
+	Authors         []Author
+	Genres          []string
+	Description     Description
+	PublicationDate PublicationDate
+	CoverImage      string
 }
 
 func GetBook(url string) (*Book, error) {
@@ -86,15 +85,16 @@ func GetBook(url string) (*Book, error) {
 		}
 	})
 
-	var editionPublicationDate string
-	var firstPublicationDate string
+	var publicationDate PublicationDate
 	c.OnHTML("#details > .row:nth-child(2)", func(e *colly.HTMLElement) {
 		s := strings.Split(strings.TrimSpace(e.Text), "\n")
 		for i, e := range s {
 			s[i] = strings.TrimSpace(e)
 		}
-		editionPublicationDate = s[1]
-		firstPublicationDate = firstPublicationDateRegexp.FindStringSubmatch(s[len(s)-1])[2]
+		publicationDate = PublicationDate{
+			Edition: s[1],
+			First:   firstPublicationDateRegexp.FindStringSubmatch(s[len(s)-1])[2],
+		}
 	})
 
 	var coverImage string
@@ -104,16 +104,12 @@ func GetBook(url string) (*Book, error) {
 
 	c.OnScraped(func(r *colly.Response) {
 		book = &Book{
-			Title:       title,
-			Authors:     authors,
-			Genres:      genres,
-			Description: description,
-			PublicationDate: PublicationDate{
-				Edition: editionPublicationDate,
-				First:   firstPublicationDate,
-			},
-			FirstPublicationDate: firstPublicationDate,
-			CoverImage:           coverImage,
+			title,
+			authors,
+			genres,
+			description,
+			publicationDate,
+			coverImage,
 		}
 	})
 
