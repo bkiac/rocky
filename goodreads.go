@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -45,7 +44,6 @@ func GetBook(url string) (*Book, error) {
 	var title string
 	c.OnHTML("[property='og:title']", func(e *colly.HTMLElement) {
 		title = e.Attr("content")
-		fmt.Println(title)
 	})
 
 	var authors []Author
