@@ -6,13 +6,10 @@ import (
 	"github.com/eefret/gomdb"
 )
 
-const (
-	rImdbURL = "https?://(w{3}.)?imdb.com/title/(tt[0-9]*)/?"
-)
+var imdbURLRegexp = regexp.MustCompile(`^https?://(w{3}.)?imdb.com/title/(tt[0-9]*)/?.*$`)
 
 func extractID(url string) string {
-	re := regexp.MustCompile(rImdbURL)
-	m := re.FindStringSubmatch(url)
+	m := imdbURLRegexp.FindStringSubmatch(url)
 	return m[len(m)-1]
 }
 
