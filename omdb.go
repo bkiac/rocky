@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"regexp"
 
 	"github.com/eefret/gomdb"
@@ -8,12 +9,20 @@ import (
 
 var imdbURLRegexp = regexp.MustCompile(`^https?://(w{3}.)?imdb.com/title/(tt[0-9]*)/?.*$`)
 
-func extractID(url string) string {
+func extractID(url string) (string, error) {
 	m := imdbURLRegexp.FindStringSubmatch(url)
-	return m[len(m)-1]
+	l := len(m)
+	if l != 3 {
+		return "", errors.New("regexp: invalid URL")
+	}
+	return m[l-1], nil
 }
 
 func GetMovie(url string) (*gomdb.MovieResult, error) {
 	api := gomdb.Init(GetConfig().omdbAPIKey)
-	return api.MovieByImdbID(extractID(url))
+	id, err := extractID(url)
+	if err != nil {
+		return nil, err
+	}
+	return api.MovieByImdbID(id)
 }
