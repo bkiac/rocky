@@ -98,7 +98,9 @@ func GetBook(url string) (*Book, error) {
 		book.CoverImage = coverImage
 	})
 
-	c.Visit(url)
+	if err := c.Visit(url); err != nil {
+		return nil, err
+	}
 
 	return book, nil
 }
