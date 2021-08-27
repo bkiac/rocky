@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -10,6 +11,9 @@ import (
 const (
 	rGoodreadsURL = `https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?`
 )
+
+// var publicationDateRegexp = regexp.MustCompile("^(([a-zA-Z]*) ([0-9]*[a-z]*) )?([0-9]*)$")
+var firstPublicationDateRegexp = regexp.MustCompile(`^(\(first published )(.*)(\))$`)
 
 type Author struct {
 	Name string
@@ -65,15 +69,13 @@ func GetBook(url string) {
 	// })
 
 	c.OnHTML("#details > .row:nth-child(2)", func(e *colly.HTMLElement) {
-		ye := strings.TrimSpace(e.Text)
-		fmt.Println(ye)
-		yee := strings.Split(ye, "\n")
-		fmt.Println(strings.Join(yee, ","))
-		var yeee []string
-		for _, v := range yee {
-			yeee = append(yeee, strings.TrimSpace(v))
+		s := strings.Split(strings.TrimSpace(e.Text), "\n")
+		for i, e := range s {
+			s[i] = strings.TrimSpace(e)
 		}
-		fmt.Println(yeee)
+		publicationDate := s[1]
+		firstPublicationDate := firstPublicationDateRegexp.FindStringSubmatch(s[len(s)-1])[2]
+		fmt.Println(publicationDate, firstPublicationDate)
 	})
 
 	c.OnScraped(func(r *colly.Response) {
