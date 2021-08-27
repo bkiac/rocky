@@ -19,6 +19,11 @@ type Author struct {
 	Role string
 }
 
+type Description struct {
+	text string
+	html string
+}
+
 type PublicationDate struct {
 	Edition string
 	First   string
@@ -28,6 +33,7 @@ type Book struct {
 	Title                string
 	Authors              []Author
 	Genres               []string
+	Description          Description
 	PublicationDate      PublicationDate
 	FirstPublicationDate string
 	CoverImage           string
@@ -70,6 +76,16 @@ func GetBook(url string) (*Book, error) {
 		}
 	})
 
+	var description Description
+	c.OnHTML("#description > span:nth-child(2)", func(e *colly.HTMLElement) {
+		text := e.Text
+		html, _ := e.DOM.Html()
+		description = Description{
+			text,
+			html,
+		}
+	})
+
 	var editionPublicationDate string
 	var firstPublicationDate string
 	c.OnHTML("#details > .row:nth-child(2)", func(e *colly.HTMLElement) {
@@ -87,15 +103,18 @@ func GetBook(url string) (*Book, error) {
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		book.Title = title
-		book.Authors = authors
-		book.Genres = genres
-		book.PublicationDate = PublicationDate{
-			Edition: editionPublicationDate,
-			First:   firstPublicationDate,
+		book = &Book{
+			Title:       title,
+			Authors:     authors,
+			Genres:      genres,
+			Description: description,
+			PublicationDate: PublicationDate{
+				Edition: editionPublicationDate,
+				First:   firstPublicationDate,
+			},
+			FirstPublicationDate: firstPublicationDate,
+			CoverImage:           coverImage,
 		}
-		book.FirstPublicationDate = firstPublicationDate
-		book.CoverImage = coverImage
 	})
 
 	if err := c.Visit(url); err != nil {
