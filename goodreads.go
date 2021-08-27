@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -8,10 +9,7 @@ import (
 	"github.com/gocolly/colly/v2"
 )
 
-const (
-	rGoodreadsURL = `https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?`
-)
-
+var goodreadsURLRegexp = regexp.MustCompile(`^https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?$`)
 var shelvedByUserRegexp = regexp.MustCompile("^[,0-9]* users?$")
 var authorRole = regexp.MustCompile(`^(\((.*)\))$`)
 var publicationDateRegexp = regexp.MustCompile("^(([a-zA-Z]*) ([0-9]*[a-z]*) )?([0-9]*)$")
@@ -31,8 +29,13 @@ type Book struct {
 	CoverImage           string
 }
 
-func GetBook(url string) {
+func GetBook(url string) (*Book, error) {
+	if !goodreadsURLRegexp.MatchString(url) {
+		return nil, errors.New("regexp: invalid URL")
+	}
+
 	c := colly.NewCollector()
+	book := new(Book)
 
 	var title string
 	c.OnHTML("[property='og:title']", func(e *colly.HTMLElement) {
@@ -81,16 +84,15 @@ func GetBook(url string) {
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		book := Book{
-			Title:                title,
-			CoverImage:           coverImage,
-			Authors:              authors,
-			Genres:               genres,
-			PublicationDate:      publicationDate,
-			FirstPublicationDate: firstPublicationDate,
-		}
-		fmt.Println(book)
+		book.Title = title
+		book.Authors = authors
+		book.Genres = genres
+		book.PublicationDate = publicationDate
+		book.FirstPublicationDate = firstPublicationDate
+		book.CoverImage = coverImage
 	})
 
 	c.Visit(url)
+
+	return book, nil
 }
