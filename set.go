@@ -27,7 +27,7 @@ func (s *set) Contains(v string) bool {
 
 func (s *set) Values() []string {
 	var vs []string
-	for v, _ := range s.m {
+	for v := range s.m {
 		vs = append(vs, v)
 	}
 	return vs
