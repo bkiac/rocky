@@ -30,7 +30,7 @@ func extractID(url string) (string, error) {
 }
 
 func GetMovieOrSeries(url string) (*MovieOrSeries, error) {
-	api := gomdb.Init(GetConfig().omdbAPIKey)
+	api := gomdb.Init(OMDBAPIKey)
 	id, err := extractID(url)
 	if err != nil {
 		return nil, err

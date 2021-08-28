@@ -9,7 +9,7 @@ import (
 
 func Telegram() {
 	b, err := tb.NewBot(tb.Settings{
-		Token:  GetConfig().TelegramBotAPIKey,
+		Token:  TelegramBotAPIKey,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
 
