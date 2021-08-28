@@ -9,7 +9,7 @@ import (
 	"github.com/gocolly/colly/v2"
 )
 
-var goodreadsURLRegexp = regexp.MustCompile(`^https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?$`)
+var GoodreadsURLRegexp = regexp.MustCompile(`^https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?$`)
 var seriesRegexp = regexp.MustCompile(`^\((.*) #.*\)`)
 var shelvedByUserRegexp = regexp.MustCompile("^[,0-9]* users?$")
 var authorRegexp = regexp.MustCompile(`^([^\(\)]*)( \(Goodreads Author\))?( \((.*)\))?$`)
@@ -41,7 +41,7 @@ type Book struct {
 }
 
 func GetBook(url string) (*Book, error) {
-	if !goodreadsURLRegexp.MatchString(url) {
+	if !GoodreadsURLRegexp.MatchString(url) {
 		return nil, errors.New("regexp: invalid URL")
 	}
 
