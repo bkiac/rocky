@@ -25,6 +25,23 @@ const (
 - Notes::
 	- 
 `
+
+	bookTemplate = `
+%s
+- Reference:: [[Books]]
+	- Status:: 
+	- Authors:: %s
+	- Description:: 
+		- %s
+	- Genres:: %s
+	- Date:: %s
+	- Rating::
+	- Keywords::
+- Highlights::
+	- 
+- Notes::
+	- 
+`
 )
 
 func referencePage(s string) string {
@@ -39,6 +56,22 @@ func referenceList(s []string) string {
 	return Join(rs)
 }
 
+func referenceAuthor(a Author) string {
+	ref := referencePage(a.Name)
+	if a.Role == "Writer" {
+		return ref
+	}
+	return fmt.Sprintf("%s (%s)", ref, a.Role)
+}
+
+func referenceAuthors(as []Author) string {
+	var ras []string
+	for _, a := range as {
+		ras = append(ras, referenceAuthor(a))
+	}
+	return Join(ras)
+}
+
 func MovieToRoamPage(m *Movie) string {
 	return fmt.Sprintf(
 		movieTemplate,
@@ -49,5 +82,22 @@ func MovieToRoamPage(m *Movie) string {
 		referenceList(m.Writers),
 		referenceList(m.Stars),
 		m.Date,
+	)
+}
+
+func BookToRoamPage(b *Book, html bool) string {
+	var d string
+	if html {
+		d = b.Description.HTML
+	} else {
+		d = b.Description.Text
+	}
+	return fmt.Sprintf(
+		bookTemplate,
+		b.Title,
+		referenceAuthors(b.Authors),
+		d,
+		referenceList(b.Genres),
+		b.PublicationDate.First,
 	)
 }
