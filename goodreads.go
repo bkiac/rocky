@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -9,14 +10,19 @@ import (
 )
 
 var goodreadsURLRegexp = regexp.MustCompile(`^https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?$`)
+var seriesRegexp = regexp.MustCompile(`^\((.*) #.*\)`)
 var shelvedByUserRegexp = regexp.MustCompile("^[,0-9]* users?$")
-var authorRole = regexp.MustCompile(`^(\((.*)\))$`)
-var editionPublicationDateRegexp = regexp.MustCompile("^(([a-zA-Z]*) ([0-9]*[a-z]*) )?([0-9]*)$")
-var firstPublicationDateRegexp = regexp.MustCompile(`^(\(first published )(.*)(\))$`)
+var authorRegexp = regexp.MustCompile(`^([^\(\)]*)( \(Goodreads Author\))?( \((.*)\))?$`)
+var publicationDateRegexp = regexp.MustCompile(`^\s*Published\s*?(([a-zA-Z]*)?( [0-9a-z]*)? ?[0-9]+)\s*.*\s*(\(first published (([a-zA-Z]*)?( [0-9a-z]*)? ?[0-9]+)\))?\s*$`)
 
 type Author struct {
 	Name string
 	Role string
+}
+
+type Description struct {
+	Text string
+	HTML string
 }
 
 type PublicationDate struct {
@@ -25,12 +31,13 @@ type PublicationDate struct {
 }
 
 type Book struct {
-	Title                string
-	Authors              []Author
-	Genres               []string
-	PublicationDate      PublicationDate
-	FirstPublicationDate string
-	CoverImage           string
+	Title           string
+	Series          string
+	Authors         []Author
+	Genres          []string
+	Description     Description
+	PublicationDate PublicationDate
+	CoverImage      string
 }
 
 func GetBook(url string) (*Book, error) {
@@ -42,43 +49,61 @@ func GetBook(url string) (*Book, error) {
 	book := new(Book)
 
 	var title string
-	c.OnHTML("[property='og:title']", func(e *colly.HTMLElement) {
-		title = e.Attr("content")
+	c.OnHTML("#bookTitle", func(e *colly.HTMLElement) {
+		title = strings.TrimSpace(e.Text)
+	})
+
+	var series string
+	c.OnHTML("#bookSeries", func(e *colly.HTMLElement) {
+		t := strings.TrimSpace(e.Text)
+		if t != "" {
+			series = seriesRegexp.FindStringSubmatch(t)[1]
+		}
 	})
 
 	var authors []Author
 	c.OnHTML(".authorName__container", func(e *colly.HTMLElement) {
 		t := strings.TrimRight(strings.TrimSpace(e.Text), ",")
-		f := strings.Fields(t)
+		s := authorRegexp.FindStringSubmatch(t)
 		var author Author
-		role := f[len(f)-1]
-		if authorRole.MatchString(role) {
-			author.Name = strings.Join(f[:len(f)-1], " ")
-			author.Role = authorRole.FindStringSubmatch(role)[2]
+		author.Name = s[1]
+		role := s[4]
+		if role == "" {
+			author.Role = "Author"
 		} else {
-			author.Name = t
-			author.Role = "Writer"
+			author.Role = role
 		}
 		authors = append(authors, author)
 	})
 
-	var genres []string
+	genreSet := NewSet()
 	c.OnHTML(".bookPageGenreLink", func(e *colly.HTMLElement) {
 		g := strings.TrimSpace(e.Text)
 		if !shelvedByUserRegexp.MatchString(g) {
-			genres = append(genres, g)
+			genreSet.Add(g)
 		}
 	})
 
-	var editionPublicationDate string
-	var firstPublicationDate string
-	c.OnHTML("#details > .row:nth-child(2)", func(e *colly.HTMLElement) {
-		s := strings.Split(strings.TrimSpace(e.Text), "\n")
-		for i, e := range s {
-			s[i] = strings.TrimSpace(e)
+	var description Description
+	c.OnHTML("#description > span:nth-child(2)", func(e *colly.HTMLElement) {
+		text := e.Text
+		html, _ := e.DOM.Html()
+		description = Description{
+			text,
+			html,
 		}
-		editionPublicationDate = s[1]
-		firstPublicationDate = firstPublicationDateRegexp.FindStringSubmatch(s[len(s)-1])[2]
+	})
+
+	var publicationDate PublicationDate
+	c.OnHTML("#details > .row:nth-child(2)", func(e *colly.HTMLElement) {
+		s := publicationDateRegexp.FindStringSubmatch(strings.TrimSpace(e.Text))
+		edition := s[1]
+		first := s[5]
+		publicationDate = PublicationDate{
+			edition,
+			first,
+		}
+		fmt.Println(publicationDate)
 	})
 
 	var coverImage string
@@ -87,15 +112,16 @@ func GetBook(url string) (*Book, error) {
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		book.Title = title
-		book.Authors = authors
-		book.Genres = genres
-		book.PublicationDate = PublicationDate{
-			Edition: editionPublicationDate,
-			First:   firstPublicationDate,
+		genres := genreSet.Values()
+		book = &Book{
+			title,
+			series,
+			authors,
+			genres,
+			description,
+			publicationDate,
+			coverImage,
 		}
-		book.FirstPublicationDate = firstPublicationDate
-		book.CoverImage = coverImage
 	})
 
 	if err := c.Visit(url); err != nil {
