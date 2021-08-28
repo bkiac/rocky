@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -103,7 +102,6 @@ func GetBook(url string) (*Book, error) {
 			edition,
 			first,
 		}
-		fmt.Println(publicationDate)
 	})
 
 	var coverImage string
