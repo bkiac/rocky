@@ -7,6 +7,6 @@ import (
 )
 
 var err = godotenv.Load()
-var OMDBAPIKey = os.Getenv("OMDB_API_KEY")
+var OMDbAPIKey = os.Getenv("OMDB_API_KEY")
 var TelegramBotAPIKey = os.Getenv("TELEGRAM_BOT_API_KEY")
 var Port = os.Getenv("PORT")
