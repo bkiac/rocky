@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -75,5 +76,6 @@ func Telegram() {
 		}
 	})
 
+	fmt.Println("Starting Telegram Bot...")
 	b.Start()
 }

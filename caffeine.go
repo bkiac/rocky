@@ -23,6 +23,7 @@ func Caffeine() {
 	if Port != "" {
 		addr = fmt.Sprintf(":%s", Port)
 	}
+	fmt.Printf("Starting keep-alive service on address %s...\n", addr)
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatal(err)
 	}
