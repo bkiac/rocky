@@ -9,15 +9,15 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println("Book")
-		fmt.Println(book)
+		fmt.Println(BookToRoamPage(book, true))
 	}
 
-	movie, err := GetMovie("https://www.imdb.com/title/tt0469494/")
+	fmt.Println()
+
+	movie, err := GetMovie("https://www.imdb.com/title/tt6412452/?ref_=nv_sr_srsg_0")
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println("Movie")
-		fmt.Println(movie)
+		fmt.Println(MovieToRoamPage(movie))
 	}
 }

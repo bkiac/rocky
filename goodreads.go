@@ -20,8 +20,8 @@ type Author struct {
 }
 
 type Description struct {
-	text string
-	html string
+	Text string
+	HTML string
 }
 
 type PublicationDate struct {
