@@ -48,6 +48,7 @@ const (
 %s
 - Reference:: [[Books]]
 	- Status:: 
+	- Book Series:: %s
 	- Authors:: %s
 	- Description:: 
 		- %s
@@ -127,6 +128,7 @@ func BookToRoamPage(b *Book, html bool) string {
 	return fmt.Sprintf(
 		bookTemplate,
 		b.Title,
+		referencePage(b.Series),
 		referenceAuthors(b.Authors),
 		d,
 		referenceList(b.Genres),

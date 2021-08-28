@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 )
 
 var goodreadsURLRegexp = regexp.MustCompile(`^https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?$`)
+var seriesRegexp = regexp.MustCompile(`^\((.*) #.*\)`)
 var shelvedByUserRegexp = regexp.MustCompile("^[,0-9]* users?$")
 var authorRoleRegexp = regexp.MustCompile(`^(\((.*)\))$`)
 var editionPublicationDateRegexp = regexp.MustCompile("^(([a-zA-Z]*) ([0-9]*[a-z]*) )?([0-9]*)$")
@@ -31,6 +33,7 @@ type PublicationDate struct {
 
 type Book struct {
 	Title           string
+	Series          string
 	Authors         []Author
 	Genres          []string
 	Description     Description
@@ -47,8 +50,17 @@ func GetBook(url string) (*Book, error) {
 	book := new(Book)
 
 	var title string
-	c.OnHTML("[property='og:title']", func(e *colly.HTMLElement) {
-		title = e.Attr("content")
+	c.OnHTML("#bookTitle", func(e *colly.HTMLElement) {
+		title = strings.TrimSpace(e.Text)
+	})
+
+	var series string
+	c.OnHTML("#bookSeries", func(e *colly.HTMLElement) {
+		t := strings.TrimSpace(e.Text)
+		if t != "" {
+			series = seriesRegexp.FindStringSubmatch(t)[1]
+		}
+		fmt.Println(series)
 	})
 
 	var authors []Author
@@ -105,6 +117,7 @@ func GetBook(url string) (*Book, error) {
 	c.OnScraped(func(r *colly.Response) {
 		book = &Book{
 			title,
+			series,
 			authors,
 			genres,
 			description,
