@@ -9,7 +9,8 @@ import (
 
 var imdbURLRegexp = regexp.MustCompile(`^https?://(w{3}.)?imdb.com/title/(tt[0-9]*)/?.*$`)
 
-type Movie struct {
+type MovieOrSeries struct {
+	Type        string
 	Title       string
 	Genres      []string
 	Description string
@@ -28,7 +29,7 @@ func extractID(url string) (string, error) {
 	return m[l-1], nil
 }
 
-func GetMovie(url string) (*Movie, error) {
+func GetMovieOrSeries(url string) (*MovieOrSeries, error) {
 	api := gomdb.Init(GetConfig().omdbAPIKey)
 	id, err := extractID(url)
 	if err != nil {
@@ -38,13 +39,14 @@ func GetMovie(url string) (*Movie, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Movie{
+	return &MovieOrSeries{
+		Type:        m.Type,
 		Title:       m.Title,
 		Genres:      Split(m.Genre),
 		Description: m.Plot,
 		Directors:   Split(m.Director),
 		Writers:     Split(m.Writer),
 		Stars:       Split(m.Actors),
-		Date:        m.Released,
+		Date:        m.Year,
 	}, nil
 }

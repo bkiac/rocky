@@ -14,10 +14,19 @@ func main() {
 
 	fmt.Println()
 
-	movie, err := GetMovie("https://www.imdb.com/title/tt6412452/?ref_=nv_sr_srsg_0")
+	mos, err := GetMovieOrSeries("https://www.imdb.com/title/tt6412452/?ref_=nv_sr_srsg_0")
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println(MovieToRoamPage(movie))
+		r, _ := MovieOrSeriesToRoamPage(mos)
+		fmt.Println(r)
+	}
+
+	mos, err = GetMovieOrSeries("https://www.imdb.com/title/tt0141842/?ref_=fn_al_tt_1")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		r, _ := MovieOrSeriesToRoamPage(mos)
+		fmt.Println(r)
 	}
 }

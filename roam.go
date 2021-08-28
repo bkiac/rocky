@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -17,6 +18,23 @@ const (
 	- Cinematographers::
 	- Editors::
 	- Music::
+	- Date:: %s
+	- Keywords::
+- Rating::
+- Highlights::
+	- 
+- Notes::
+	- 
+`
+
+	seriesTemplate = `
+%s
+- Reference:: [[TV Series]]
+	- Status:: 
+	- Genres:: %s
+	- Description:: %s
+	- Creators:: %s
+	- Stars:: %s
 	- Date:: %s
 	- Keywords::
 - Rating::
@@ -72,17 +90,31 @@ func referenceAuthors(as []Author) string {
 	return Join(ras)
 }
 
-func MovieToRoamPage(m *Movie) string {
-	return fmt.Sprintf(
-		movieTemplate,
-		m.Title,
-		referenceList(m.Genres),
-		m.Description,
-		referenceList(m.Directors),
-		referenceList(m.Writers),
-		referenceList(m.Stars),
-		m.Date,
-	)
+func MovieOrSeriesToRoamPage(mos *MovieOrSeries) (string, error) {
+	if mos.Type == "movie" {
+		return fmt.Sprintf(
+			movieTemplate,
+			mos.Title,
+			referenceList(mos.Genres),
+			mos.Description,
+			referenceList(mos.Directors),
+			referenceList(mos.Writers),
+			referenceList(mos.Stars),
+			mos.Date,
+		), nil
+	}
+	if mos.Type == "series" {
+		return fmt.Sprintf(
+			seriesTemplate,
+			mos.Title,
+			referenceList(mos.Genres),
+			mos.Description,
+			referenceList(mos.Writers),
+			referenceList(mos.Stars),
+			mos.Date,
+		), nil
+	}
+	return "", errors.New("type: unknown type")
 }
 
 func BookToRoamPage(b *Book, html bool) string {
