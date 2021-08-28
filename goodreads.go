@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -60,7 +59,6 @@ func GetBook(url string) (*Book, error) {
 		if t != "" {
 			series = seriesRegexp.FindStringSubmatch(t)[1]
 		}
-		fmt.Println(series)
 	})
 
 	var authors []Author
