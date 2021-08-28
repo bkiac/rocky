@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	omdbAPIKey string
+	omdbAPIKey        string
+	TelegramBotAPIKey string
 }
 
 func GetConfig() Config {
@@ -18,8 +19,10 @@ func GetConfig() Config {
 	}
 
 	omdbAPIKey := os.Getenv("OMDB_API_KEY")
+	telegramBotAPIKey := os.Getenv("TELEGRAM_BOT_API_KEY")
 
 	return Config{
 		omdbAPIKey,
+		telegramBotAPIKey,
 	}
 }
