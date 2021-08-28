@@ -7,7 +7,7 @@ import (
 	"github.com/eefret/gomdb"
 )
 
-var imdbURLRegexp = regexp.MustCompile(`^https?://(w{3}.)?imdb.com/title/(tt[0-9]*)/?.*$`)
+var IMDbURLRegexp = regexp.MustCompile(`^https?://(w{3}.)?imdb.com/title/(tt[0-9]*)/?.*$`)
 
 type MovieOrSeries struct {
 	Type        string
@@ -21,7 +21,7 @@ type MovieOrSeries struct {
 }
 
 func extractID(url string) (string, error) {
-	m := imdbURLRegexp.FindStringSubmatch(url)
+	m := IMDbURLRegexp.FindStringSubmatch(url)
 	l := len(m)
 	if l != 3 {
 		return "", errors.New("regexp: invalid URL")
@@ -30,7 +30,7 @@ func extractID(url string) (string, error) {
 }
 
 func GetMovieOrSeries(url string) (*MovieOrSeries, error) {
-	api := gomdb.Init(GetConfig().omdbAPIKey)
+	api := gomdb.Init(OMDBAPIKey)
 	id, err := extractID(url)
 	if err != nil {
 		return nil, err
