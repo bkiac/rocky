@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -12,8 +13,7 @@ var goodreadsURLRegexp = regexp.MustCompile(`^https?://(w{3}\.)?goodreads\.com/b
 var seriesRegexp = regexp.MustCompile(`^\((.*) #.*\)`)
 var shelvedByUserRegexp = regexp.MustCompile("^[,0-9]* users?$")
 var authorRegexp = regexp.MustCompile(`^([^\(\)]*)( \(Goodreads Author\))?( \((.*)\))?$`)
-var editionPublicationDateRegexp = regexp.MustCompile("^(([a-zA-Z]*) ([0-9]*[a-z]*) )?([0-9]*)$")
-var firstPublicationDateRegexp = regexp.MustCompile(`^(\(first published )(.*)(\))$`)
+var publicationDateRegexp = regexp.MustCompile(`^\s*Published\s*?(([a-zA-Z]*)?( [0-9a-z]*)? ?[0-9]+)\s*.*\s*(\(first published (([a-zA-Z]*)?( [0-9a-z]*)? ?[0-9]+)\))?\s*$`)
 
 type Author struct {
 	Name string
@@ -96,14 +96,14 @@ func GetBook(url string) (*Book, error) {
 
 	var publicationDate PublicationDate
 	c.OnHTML("#details > .row:nth-child(2)", func(e *colly.HTMLElement) {
-		s := strings.Split(strings.TrimSpace(e.Text), "\n")
-		for i, e := range s {
-			s[i] = strings.TrimSpace(e)
-		}
+		s := publicationDateRegexp.FindStringSubmatch(strings.TrimSpace(e.Text))
+		edition := s[1]
+		first := s[5]
 		publicationDate = PublicationDate{
-			Edition: s[1],
-			First:   firstPublicationDateRegexp.FindStringSubmatch(s[len(s)-1])[2],
+			edition,
+			first,
 		}
+		fmt.Println(publicationDate)
 	})
 
 	var coverImage string
