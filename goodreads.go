@@ -12,7 +12,7 @@ import (
 var goodreadsURLRegexp = regexp.MustCompile(`^https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?$`)
 var seriesRegexp = regexp.MustCompile(`^\((.*) #.*\)`)
 var shelvedByUserRegexp = regexp.MustCompile("^[,0-9]* users?$")
-var authorRoleRegexp = regexp.MustCompile(`^(\((.*)\))$`)
+var authorRegexp = regexp.MustCompile(`^([^\(\)]*)( \(Goodreads Author\))?( \((.*)\))?$`)
 var editionPublicationDateRegexp = regexp.MustCompile("^(([a-zA-Z]*) ([0-9]*[a-z]*) )?([0-9]*)$")
 var firstPublicationDateRegexp = regexp.MustCompile(`^(\(first published )(.*)(\))$`)
 
@@ -66,15 +66,14 @@ func GetBook(url string) (*Book, error) {
 	var authors []Author
 	c.OnHTML(".authorName__container", func(e *colly.HTMLElement) {
 		t := strings.TrimRight(strings.TrimSpace(e.Text), ",")
-		f := strings.Fields(t)
+		s := authorRegexp.FindStringSubmatch(t)
 		var author Author
-		role := f[len(f)-1]
-		if authorRoleRegexp.MatchString(role) {
-			author.Name = strings.Join(f[:len(f)-1], " ")
-			author.Role = authorRoleRegexp.FindStringSubmatch(role)[2]
+		author.Name = s[1]
+		role := s[4]
+		if role == "" {
+			author.Role = "Author"
 		} else {
-			author.Name = t
-			author.Role = "Writer"
+			author.Role = role
 		}
 		authors = append(authors, author)
 	})
