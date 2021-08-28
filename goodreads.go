@@ -78,11 +78,11 @@ func GetBook(url string) (*Book, error) {
 		authors = append(authors, author)
 	})
 
-	var genres []string
+	genreSet := NewSet()
 	c.OnHTML(".bookPageGenreLink", func(e *colly.HTMLElement) {
 		g := strings.TrimSpace(e.Text)
 		if !shelvedByUserRegexp.MatchString(g) {
-			genres = append(genres, g)
+			genreSet.Add(g)
 		}
 	})
 
@@ -114,6 +114,7 @@ func GetBook(url string) (*Book, error) {
 	})
 
 	c.OnScraped(func(r *colly.Response) {
+		genres := genreSet.Values()
 		book = &Book{
 			title,
 			series,
