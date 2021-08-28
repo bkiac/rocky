@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/eefret/gomdb"
 )
 
 const (
@@ -29,6 +27,27 @@ const (
 `
 )
 
-func MovieToRoamPage(m *gomdb.MovieResult) string {
-	return fmt.Sprintf(movieTemplate, m.Title, m.Genre, m.Plot, m.Director, m.Writer, m.Actors, m.Released)
+func referencePage(s string) string {
+	return fmt.Sprintf("[[%s]]", s)
+}
+
+func referenceList(s []string) string {
+	var rs []string
+	for _, e := range s {
+		rs = append(rs, referencePage(e))
+	}
+	return Join(rs)
+}
+
+func MovieToRoamPage(m *Movie) string {
+	return fmt.Sprintf(
+		movieTemplate,
+		m.Title,
+		referenceList(m.Genres),
+		m.Description,
+		referenceList(m.Directors),
+		referenceList(m.Writers),
+		referenceList(m.Stars),
+		m.Date,
+	)
 }
