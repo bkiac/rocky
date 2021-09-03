@@ -8,11 +8,17 @@ import (
 	"github.com/gocolly/colly/v2"
 )
 
-var GoodreadsURLRegexp = regexp.MustCompile(`^https?://(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?$`)
+var GoodreadsURLRegexp = regexp.MustCompile(
+	`^(https?://)?(w{3}\.)?goodreads\.com/book/show/([0-9]+).(.*)(\?(.*))?$`,
+)
 var seriesRegexp = regexp.MustCompile(`^\((.*) #.*\)`)
 var shelvedByUserRegexp = regexp.MustCompile("^[,0-9]* users?$")
-var authorRegexp = regexp.MustCompile(`^([^\(\)]*)( \(Goodreads Author\))?( \((.*)\))?$`)
-var publicationDateRegexp = regexp.MustCompile(`^\s*Published\s*?(([a-zA-Z]*)?( [0-9a-z]*)? ?[0-9]+)\s*.*\s*(\(first published (([a-zA-Z]*)?( [0-9a-z]*)? ?[0-9]+)\))?\s*$`)
+var authorRegexp = regexp.MustCompile(
+	`^([^\(\)]*)( \(Goodreads Author\))?( \((.*)\))?$`,
+)
+var publicationDateRegexp = regexp.MustCompile(
+	`^\s*Published\s*?(([a-zA-Z]*)?( [0-9a-z]*)? ?[0-9]+)\s*.*\s*(\(first published (([a-zA-Z]*)?( [0-9a-z]*)? ?[0-9]+)\))?\s*$`,
+)
 
 type Author struct {
 	Name string
