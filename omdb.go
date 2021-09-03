@@ -7,7 +7,9 @@ import (
 	"github.com/eefret/gomdb"
 )
 
-var IMDbURLRegexp = regexp.MustCompile(`^https?://(w{3}.)?imdb.com/title/(tt[0-9]*)/?.*$`)
+var IMDbURLRegexp = regexp.MustCompile(
+	`^(https?://)?((w{3}.)|m.)?imdb.com/title/(tt[0-9]*)/?.*$`,
+)
 
 type MovieOrSeries struct {
 	Type        string
@@ -23,7 +25,7 @@ type MovieOrSeries struct {
 func extractID(url string) (string, error) {
 	m := IMDbURLRegexp.FindStringSubmatch(url)
 	l := len(m)
-	if l != 3 {
+	if m == nil || l != 5 {
 		return "", errors.New("regexp: invalid URL")
 	}
 	return m[l-1], nil
